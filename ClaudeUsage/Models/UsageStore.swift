@@ -28,6 +28,9 @@ final class UsageStore: ObservableObject {
         let projectsURL = self.projectsURL
         let result = await Task.detached(priority: .utility) {
             var snap = StatuslineReader.readLatest(at: statuslineURL) ?? UsageSnapshot()
+            if let mtime = (try? FileManager.default.attributesOfItem(atPath: statuslineURL.path))?[.modificationDate] as? Date {
+                snap.statuslineAt = mtime
+            }
             let now = Date()
             // Use server-side block boundary when available so the token count
             // matches Claude Code's fixed window (resetsAt - 5h) rather than

@@ -40,6 +40,11 @@ struct DropdownView: View {
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
             }
+            if let at = store.snapshot.statuslineAt {
+                Text("server data as of \(at.formatted(.dateTime.hour().minute()))")
+                    .font(.system(size: 10))
+                    .foregroundStyle(.tertiary)
+            }
         }
     }
 
