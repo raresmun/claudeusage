@@ -10,9 +10,11 @@ enum ProjectsReader {
 
     /// Walk session JSONL files and aggregate per-window totals.
     /// Files older than the widest window of interest are skipped via mtime.
-    static func aggregate(projectsDir: URL, now: Date = Date(), blockHours: Int = 5) -> Result {
+    /// `serverBlockStart` — when provided, used as the 5h block boundary so the count
+    /// matches Claude Code's fixed window rather than a rolling one.
+    static func aggregate(projectsDir: URL, now: Date = Date(), serverBlockStart: Date? = nil) -> Result {
         var result = Result()
-        let blockStart = now.addingTimeInterval(-Double(blockHours) * 3600)
+        let blockStart = serverBlockStart ?? now.addingTimeInterval(-5 * 3600)
         let calendar = Calendar.current
         let todayStart = calendar.startOfDay(for: now)
         // Pad cutoff by an hour to absorb clock skew and late-flushed lines.

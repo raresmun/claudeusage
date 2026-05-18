@@ -28,13 +28,21 @@ final class UsageStore: ObservableObject {
         let projectsURL = self.projectsURL
         let result = await Task.detached(priority: .utility) {
             var snap = StatuslineReader.readLatest(at: statuslineURL) ?? UsageSnapshot()
-            let projects = ProjectsReader.aggregate(projectsDir: projectsURL)
+            let now = Date()
+            // Use server-side block boundary when available so the token count
+            // matches Claude Code's fixed window (resetsAt - 5h) rather than
+            // a rolling "last 5 hours" that over-counts from a previous block.
+            let serverBlockStart: Date?
+            if let resetsAt = snap.fiveHour?.resetsAt, resetsAt > now {
+                serverBlockStart = resetsAt.addingTimeInterval(-5 * 3600)
+            } else {
+                serverBlockStart = nil
+            }
+            let projects = ProjectsReader.aggregate(projectsDir: projectsURL, now: now, serverBlockStart: serverBlockStart)
             if projects.activeBlockTokens > 0 {
                 snap.activeBlockTokens = projects.activeBlockTokens
                 snap.activeBlockStartedAt = projects.activeBlockStartedAt
-                if let start = projects.activeBlockStartedAt {
-                    snap.activeBlockEndsAt = start.addingTimeInterval(5 * 3600)
-                }
+                snap.activeBlockEndsAt = snap.fiveHour?.resetsAt
             }
             if projects.todayMessages > 0 {
                 snap.today = projects.today

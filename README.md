@@ -34,7 +34,7 @@ Without this step, the menu bar will show `⏣ —` for percentages but will sti
 ClaudeUsage reads two paths under `~/.claude/`, both read-only:
 
 - **`~/.claude/statusline.jsonl`** — written by your statusline command (after running `scripts/setup-statusline.sh`). ClaudeUsage tail-reads the last valid JSON line to pull out `rate_limits.five_hour.used_percentage`, `rate_limits.seven_day.used_percentage`, their `resets_at` timestamps, `cost.total_cost_usd`, and `model.display_name`.
-- **`~/.claude/projects/**/*.jsonl`** — one file per Claude Code session. ClaudeUsage walks these, filtered by recent modification time, to sum tokens in the active 5-hour window and today's totals.
+- **`~/.claude/projects/**/*.jsonl`** — one file per Claude Code session. ClaudeUsage walks these, filtered by recent modification time, to sum tokens for today's totals and the active 5-hour block. The 5-hour block uses the server-provided `resets_at` timestamp to determine the exact block boundary (`resets_at − 5h`), so the token count matches what Claude Code reports internally rather than using a rolling window.
 
 The app refreshes every 30 seconds, and again the moment you open the dropdown. It pauses the timer during system sleep and resumes on wake.
 
