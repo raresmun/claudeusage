@@ -38,7 +38,6 @@ struct UsageSnapshot: Equatable {
     // From ~/.claude/projects/**/*.jsonl
     var activeBlockTokens: UInt64?
     var activeBlockStartedAt: Date?
-    var activeBlockEndsAt: Date?
     var today: TokenBreakdown?
     var todayMessages: Int?
 

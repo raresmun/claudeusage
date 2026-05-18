@@ -42,7 +42,7 @@ final class UsageStore: ObservableObject {
             if projects.activeBlockTokens > 0 {
                 snap.activeBlockTokens = projects.activeBlockTokens
                 snap.activeBlockStartedAt = projects.activeBlockStartedAt
-                snap.activeBlockEndsAt = snap.fiveHour?.resetsAt
+
             }
             if projects.todayMessages > 0 {
                 snap.today = projects.today

@@ -52,8 +52,8 @@ struct DropdownView: View {
                     .font(.system(size: 12))
                     .monospacedDigit()
             }
-            ProgressBar(value: limit?.usedPercent ?? 0)
-                .foregroundColor(UsageColor.color(forPercent: limit?.usedPercent ?? 0))
+            ProgressBar(value: limit?.usedPercent ?? 0,
+                        color: UsageColor.color(forPercent: limit?.usedPercent ?? 0))
             if let l = limit {
                 Text("resets in \(formatRelative(to: l.resetsAt, allowDays: daysExpected))")
                     .font(.system(size: 10))
@@ -71,11 +71,6 @@ struct DropdownView: View {
                 Text(store.snapshot.activeBlockTokens.map(formatTokens) ?? "—")
                     .font(.system(size: 12))
                     .monospacedDigit()
-            }
-            if let ends = store.snapshot.activeBlockEndsAt {
-                Text("window ends in \(formatRelative(to: ends, allowDays: false))")
-                    .font(.system(size: 10))
-                    .foregroundStyle(.secondary)
             }
         }
     }
