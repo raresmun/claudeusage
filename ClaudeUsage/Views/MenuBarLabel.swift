@@ -4,9 +4,13 @@ struct MenuBarLabel: View {
     let snapshot: UsageSnapshot
 
     var body: some View {
-        Text(text)
-            .monospacedDigit()
-            .foregroundColor(color)
+        HStack(spacing: 4) {
+            Image(systemName: "gauge.medium")
+                .font(.system(size: 12, weight: .semibold))
+            Text(text)
+                .monospacedDigit()
+        }
+        .foregroundColor(color)
     }
 
     private var text: String {
@@ -17,8 +21,7 @@ struct MenuBarLabel: View {
         if let v = snapshot.weekly?.usedPercent {
             segments.append("wk \(Int(v.rounded()))%")
         }
-        let body = segments.isEmpty ? "—" : segments.joined(separator: " · ")
-        return "⏣ " + body
+        return segments.isEmpty ? "—" : segments.joined(separator: " · ")
     }
 
     private var color: Color {
