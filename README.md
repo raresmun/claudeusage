@@ -86,7 +86,7 @@ Caveats worth knowing about:
 
 This is v0.1 and a few things from the original plan are still pending:
 
-- **No notarized DMG release yet.** The `.github/workflows/release.yml` pipeline is wired up but has never been exercised end-to-end — it requires an Apple Developer cert and five GitHub secrets (see `CLAUDE.md`).
+- **No release pipeline yet.** `.github/workflows/release.yml` hasn't been written. `CLAUDE.md` documents the required Apple Developer cert and five GitHub secrets for when it is.
 - **No Homebrew cask yet.**
 - **No app icon yet.** The Assets catalog is wired up but contains no PNGs.
 - **RAM is ~90 MB**, not the <30 MB target in the brief. SwiftUI `MenuBarExtra` carries significant overhead; hitting that target would mean rewriting against `NSStatusItem`.
