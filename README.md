@@ -1,9 +1,11 @@
 # ClaudeUsage
 
-A small macOS menu bar app showing Claude Code session and weekly usage at a glance.
+A small macOS menu bar app showing Claude Code 5-hour and weekly rate-limit usage at a glance. Lives in your status bar, refreshes every 30 seconds, never touches the network.
 
 <!-- Screenshot lives in docs/screenshot.png. Replace with a real capture before sharing widely. -->
 ![ClaudeUsage in the menu bar](docs/screenshot.png)
+
+The menu bar shows a gauge icon plus two percentages: `5h X% · wk Y%`. The icon and text color track the worst of the two: green under 35%, yellow under 60%, orange under 85%, red beyond. Click for the full dropdown: active 5-hour block tokens, today's tokens, model in use, session cost, and reset times.
 
 ## Why
 
@@ -11,23 +13,53 @@ A small macOS menu bar app showing Claude Code session and weekly usage at a gla
 - **Sandboxed in shipped builds.** Read-only access to `~/.claude/` only.
 - **Short source.** Under 700 lines of Swift. A stranger can read the whole thing in 15 minutes.
 
-## Build and run
+## Setup
+
+### Requirements
+
+- macOS 13 Ventura or later
+- Claude Code already installed and signed in (the app reads `~/.claude/`)
+- **Xcode 15 or later**, installed from the [Mac App Store](https://apps.apple.com/app/xcode/id497799835). Command Line Tools alone are **not** enough — `scripts/build.sh` calls `xcodebuild`, which requires the full Xcode IDE. After installing, run `sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer` once so the toolchain resolves.
+
+### 1. Clone the repo
 
 ```sh
 git clone https://github.com/raresmun/claudeusage
 cd claudeusage
-./scripts/setup-statusline.sh      # one-time: wire Claude Code's statusline up
-./scripts/build.sh                 # produces an unsigned .app
-open build/DerivedData/Build/Products/Release/ClaudeUsage.app
 ```
 
-Requirements: macOS 13 Ventura or later, and Xcode 15+ on the build machine.
+### 2. Wire up the Claude Code statusline
 
-## Setup
+```sh
+./scripts/setup-statusline.sh
+```
 
-Claude Code does **not** write any rate-limit data to disk on its own. The numbers ClaudeUsage shows for the 5-hour and weekly limits come from JSON that Claude Code pipes to its statusline command on every prompt. To make that data available to a separate app, `scripts/setup-statusline.sh` adds one line to `~/.claude/statusline.sh` that persists the JSON to `~/.claude/statusline.jsonl`. It's idempotent and makes a timestamped backup before editing. If you have no custom statusline yet, the script prints instructions for setting one up first.
+Claude Code does not write rate-limit data to disk on its own — it pipes a JSON snapshot to a *statusline script* on every prompt. This one-time script appends a snippet to `~/.claude/statusline.sh` that also persists each snapshot to `~/.claude/statusline.jsonl`, the file ClaudeUsage tail-reads. It is idempotent and makes a timestamped backup before editing.
 
-Without this step, the menu bar will show `⏣ —` for percentages but will still show today's tokens and the active 5-hour block tokens from `~/.claude/projects/`.
+If you don't have a custom statusline yet, the script prints the exact 3-step recipe to create one and exits without modifying anything. Follow the printed instructions, then re-run the script.
+
+You can skip this step — the menu bar will show `—` instead of percentages but will still show today's tokens and the active 5-hour block tokens read directly from `~/.claude/projects/`.
+
+### 3. Build the app
+
+```sh
+./scripts/build.sh
+```
+
+Produces an ad-hoc-signed `ClaudeUsage.app` under `build/DerivedData/Build/Products/Release/`. First builds can take a minute or two while Xcode downloads platform metadata.
+
+### 4. Install and launch
+
+```sh
+cp -R build/DerivedData/Build/Products/Release/ClaudeUsage.app /Applications/
+open /Applications/ClaudeUsage.app
+```
+
+A gauge icon will appear in the menu bar with `5h X% · wk Y%` next to it (or `—` placeholders until Claude Code writes its first snapshot — open a Claude Code session and send one prompt to populate the data).
+
+### 5. (Optional) Launch at login
+
+Click the menu bar icon → toggle **Launch at login**. The toggle uses `SMAppService.mainApp` and is reflected in **System Settings → General → Login Items**.
 
 ## How it works
 
